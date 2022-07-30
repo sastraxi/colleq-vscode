@@ -17,7 +17,7 @@ export type Document = {
   /**
    * Relative path from the git root.
    */
-  gitPath: string
+  treePath: string
   annotations: Array<Annotation>
 }
 
@@ -27,13 +27,13 @@ const showSidebarUri = (arg: ShowSidebarArgs) =>
   )
 
 export const renderDecorationMarkdown = (
-  gitPath: string,
+  treePath: string,
   annotation: Annotation
 ) => {
   const hoverMarkdown = `**${annotation.username}**: ${annotation.message}
 ---
 [View conversation in sidebar](${showSidebarUri({
-    gitPath,
+    treePath,
     annotationId: annotation.id,
   })})`
 
@@ -43,7 +43,7 @@ export const renderDecorationMarkdown = (
 }
 
 export const lookupDocument = async (
-  gitPath: string
+  treePath: string
 ): Promise<Document | undefined> => {
   const api = await getBuiltInGitApi()
   if (!api) {
@@ -53,7 +53,7 @@ export const lookupDocument = async (
   const repo = api.repositories[0]
 
   return {
-    gitPath,
+    treePath,
     annotations: [
       {
         id: 1,

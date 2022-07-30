@@ -24,7 +24,7 @@ export const getBuiltInGitApi = async (): Promise<
 /**
  * @return A relative path that does not start with a "/"".
  */
-export const uriToGitPath = async (uri: vscode.Uri) => {
+export const uriToTreePath = async (uri: vscode.Uri) => {
   const api = await getBuiltInGitApi()
   if (!api) {
     output.appendLine('FATAL: could not instantiate vscode.git extension.')

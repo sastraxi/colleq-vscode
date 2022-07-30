@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
-import { uriToGitPath } from '../git'
+import { uriToTreePath } from '../git'
 import { getWebviewContent } from './webview'
 
 export type ShowSidebarArgs = {
-  gitPath?: string
+  treePath?: string
   annotationId?: number
 }
 
@@ -15,12 +15,12 @@ const setupSidebar = (context: vscode.ExtensionContext) => {
       const columnToShowIn = vscode.ViewColumn.Beside
       const activeTextEditor = vscode.window.activeTextEditor
 
-      const gitPath =
-        options?.gitPath ??
+      const treePath =
+        options?.treePath ??
         (activeTextEditor?.document.uri &&
-          (await uriToGitPath(activeTextEditor?.document.uri)))
+          (await uriToTreePath(activeTextEditor?.document.uri)))
 
-      if (!gitPath) {
+      if (!treePath) {
         return
       }
 
@@ -38,7 +38,7 @@ const setupSidebar = (context: vscode.ExtensionContext) => {
           },
           {}
         )
-        currentPanel.webview.html = await getWebviewContent(gitPath)
+        currentPanel.webview.html = await getWebviewContent(treePath)
 
         // Reset when the current panel is closed
         currentPanel.onDidDispose(

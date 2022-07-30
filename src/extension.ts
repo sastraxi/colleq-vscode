@@ -4,7 +4,7 @@ import helloWorld from './helloWorld'
 import setupSidebar from './sidebar/index'
 
 import { output } from './log'
-import { uriToGitPath } from './git'
+import { uriToTreePath } from './git'
 import { lookupDocument, renderDecorationMarkdown } from './store'
 
 const decorationType = vscode.window.createTextEditorDecorationType({
@@ -12,17 +12,17 @@ const decorationType = vscode.window.createTextEditorDecorationType({
 })
 
 const decorate = async (editor: vscode.TextEditor) => {
-  const gitPath = await uriToGitPath(editor.document.uri)
-  if (!gitPath) return []
+  const treePath = await uriToTreePath(editor.document.uri)
+  if (!treePath) return []
 
-  const document = await lookupDocument(gitPath)
+  const document = await lookupDocument(treePath)
   if (!document) return []
 
   const sourceCode = editor.document.getText()
   const sourceCodeArr = sourceCode.split('\n')
 
   const decorationsArray = document.annotations.map((annotation) => {
-    const hoverMessage = renderDecorationMarkdown(gitPath, annotation)
+    const hoverMessage = renderDecorationMarkdown(treePath, annotation)
     const line = annotation.lineNumber - 1
     const decoration: vscode.DecorationOptions = {
       range: new vscode.Range(
