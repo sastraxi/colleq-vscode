@@ -1,29 +1,67 @@
 import * as vscode from 'vscode'
 import { getBuiltInGitApi } from './git'
 
+import { type ShowSidebarArgs } from './sidebar'
+
 import { output } from './log'
 
 export type Annotation = {
+  id: number
   lineNumber: number
   username: string
   message: string
-  externalUri: string
+  externalUri?: string
 }
 
-export const getAnnotations = async (
-  documentUri: vscode.Uri
-): Promise<Array<Annotation>> => {
-  output.appendLine(`got document uri: ${documentUri}`)
+export type Document = {
+  /**
+   * Relative path from the git root.
+   */
+  gitPath: string
+  annotations: Array<Annotation>
+}
 
+const showSidebarUri = (arg: ShowSidebarArgs) =>
+  vscode.Uri.parse(
+    `command:colleq.showSidebar?${encodeURIComponent(JSON.stringify([arg]))}`
+  )
+
+export const renderDecorationMarkdown = (
+  gitPath: string,
+  annotation: Annotation
+) => {
+  const hoverMarkdown = `**${annotation.username}**: ${annotation.message}
+---
+[View conversation in sidebar](${showSidebarUri({
+    gitPath,
+    annotationId: annotation.id,
+  })})`
+
+  const markdownString = new vscode.MarkdownString(hoverMarkdown)
+  markdownString.isTrusted = true
+  return markdownString
+}
+
+export const lookupDocument = async (
+  gitPath: string
+): Promise<Document | undefined> => {
   const api = await getBuiltInGitApi()
   if (!api) {
     output.appendLine('FATAL: could not instantiate vscode.git extension.')
-    return []
+    return undefined
   }
-
   const repo = api.repositories[0]
-  const { commit, name } = repo.state.HEAD!
-  output.appendLine(`git: ${commit} ${name}`)
 
-  return []
+  return {
+    gitPath,
+    annotations: [
+      {
+        id: 1,
+        lineNumber: 32,
+        username: 'Evert Timberg',
+        message: `There's a race condition here, I think.
+          Consider the case where...`,
+      },
+    ],
+  }
 }

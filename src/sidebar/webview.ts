@@ -1,10 +1,13 @@
 import * as vscode from 'vscode'
-import { getAnnotations } from '../store'
+import { lookupDocument } from '../store'
 
-export const getWebviewContent = (documentUri: vscode.Uri) => {
-  const annotations = getAnnotations(documentUri)
+export const getWebviewContent = async (gitPath: string) => {
+  const document = await lookupDocument(gitPath)
+  if (!document) {
+    return `No file found.`
+  }
   return `
-    <h1>Sidebar</h1>
+    <h1>${document.gitPath}</h1>
     <p>
         Some day some amazing things will be here.
     </p>

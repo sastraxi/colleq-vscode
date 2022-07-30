@@ -4,56 +4,42 @@ import helloWorld from './helloWorld'
 import setupSidebar from './sidebar/index'
 
 import { output } from './log'
+import { uriToGitPath } from './git'
+import { lookupDocument, renderDecorationMarkdown } from './store'
 
 const decorationType = vscode.window.createTextEditorDecorationType({
   isWholeLine: true,
 })
 
-const showSidebarUri = (args: string[]) =>
-  vscode.Uri.parse(
-    `command:colleq.showSidebar?${encodeURIComponent(JSON.stringify(args))}`
-  )
+const decorate = async (editor: vscode.TextEditor) => {
+  const gitPath = await uriToGitPath(editor.document.uri)
+  if (!gitPath) return []
 
-const hoverMarkdown = `
-**Evert Timberg**: There's a race condition here, I think.
-Consider the case where...
+  const document = await lookupDocument(gitPath)
+  if (!document) return []
 
----
-[View conversation in sidebar](${showSidebarUri(['bob', 'todd'])})
-`
-
-const decorate = (editor: vscode.TextEditor) => {
   const sourceCode = editor.document.getText()
-  const regex = /(console\.log)/
-
-  const decorationsArray: vscode.DecorationOptions[] = []
   const sourceCodeArr = sourceCode.split('\n')
 
-  for (let line = 0; line < sourceCodeArr.length; line++) {
-    const match = sourceCodeArr[line].match(regex)
-
-    if (match !== null && match.index !== undefined) {
-      const hoverMessage = new vscode.MarkdownString(hoverMarkdown)
-      hoverMessage.isTrusted = true
-
-      const decoration: vscode.DecorationOptions = {
-        range: new vscode.Range(
-          new vscode.Position(line, sourceCodeArr[line].length),
-          new vscode.Position(line, sourceCodeArr[line].length)
-        ),
-        hoverMessage,
-        renderOptions: {
-          after: {
-            contentText: '👥 2',
-            color: '#69afcf',
-            margin: '3em',
-          },
+  const decorationsArray = document.annotations.map((annotation) => {
+    const hoverMessage = renderDecorationMarkdown(gitPath, annotation)
+    const line = annotation.lineNumber - 1
+    const decoration: vscode.DecorationOptions = {
+      range: new vscode.Range(
+        new vscode.Position(line, sourceCodeArr[line].length),
+        new vscode.Position(line, sourceCodeArr[line].length)
+      ),
+      hoverMessage,
+      renderOptions: {
+        after: {
+          contentText: `👥 ${annotation.username}`,
+          color: '#69afcf',
+          margin: '2em',
         },
-      }
-      decorationsArray.push(decoration)
+      },
     }
-  }
-
+    return decoration
+  })
   editor.setDecorations(decorationType, decorationsArray)
 }
 
@@ -82,11 +68,11 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   )
 
-  vscode.workspace.onWillSaveTextDocument((event) => {
+  vscode.workspace.onWillSaveTextDocument(async (event) => {
     const openEditor = vscode.window.visibleTextEditors.filter(
       (editor) => editor.document.uri === event.document.uri
     )[0]
-    decorate(openEditor)
+    await decorate(openEditor)
   })
 }
 
