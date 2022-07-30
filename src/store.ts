@@ -61,6 +61,7 @@ export const lookupDocument = async (
         username: 'Evert Timberg',
         message: `There's a race condition here, I think.
           Consider the case where...`,
+        externalUri: 'https://google.com',
       },
     ],
   }
