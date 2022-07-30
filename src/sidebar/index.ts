@@ -36,7 +36,10 @@ const setupSidebar = (context: vscode.ExtensionContext) => {
             viewColumn: columnToShowIn,
             preserveFocus: true,
           },
-          {}
+          {
+            enableCommandUris: true,
+            enableScripts: true,
+          }
         )
         currentPanel.webview.html = await getWebviewContent(treePath)
 
