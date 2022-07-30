@@ -40,6 +40,7 @@
     "@types/jest": "^28.1.6",
     "fastify": "^4.3.0"
   },
+  "extensionDependencies": ["vscode.git"],
   "activationEvents": [
     "*"
   ],

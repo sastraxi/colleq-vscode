@@ -1,18 +1,25 @@
 import * as vscode from 'vscode'
 
 import helloWorld from './helloWorld'
+import setupSidebar from './sidebar/index'
+
+import { output } from './log'
 
 const decorationType = vscode.window.createTextEditorDecorationType({
   isWholeLine: true,
 })
 
+const showSidebarUri = (args: string[]) =>
+  vscode.Uri.parse(
+    `command:colleq.showSidebar?${encodeURIComponent(JSON.stringify(args))}`
+  )
+
 const hoverMarkdown = `
-# Look at this stuff
-It's **stuff**
+**Evert Timberg**: There's a race condition here, I think.
+Consider the case where...
+
 ---
-[Open in sidebar](vscode://sastraxi.colleq-vscode/)
----
-<a href="vscode://sastraxi.colleq-vscode/">Hello</a>
+[View conversation in sidebar](${showSidebarUri(['bob', 'todd'])})
 `
 
 const decorate = (editor: vscode.TextEditor) => {
@@ -26,12 +33,15 @@ const decorate = (editor: vscode.TextEditor) => {
     const match = sourceCodeArr[line].match(regex)
 
     if (match !== null && match.index !== undefined) {
+      const hoverMessage = new vscode.MarkdownString(hoverMarkdown)
+      hoverMessage.isTrusted = true
+
       const decoration: vscode.DecorationOptions = {
         range: new vscode.Range(
           new vscode.Position(line, sourceCodeArr[line].length),
           new vscode.Position(line, sourceCodeArr[line].length)
         ),
-        hoverMessage: hoverMarkdown,
+        hoverMessage,
         renderOptions: {
           after: {
             contentText: '👥 2',
@@ -47,17 +57,12 @@ const decorate = (editor: vscode.TextEditor) => {
   editor.setDecorations(decorationType, decorationsArray)
 }
 
-//Create output channel
-const output = vscode.window.createOutputChannel('Colleq')
-
-//Write to output.
-output.appendLine('Colleq started.')
-
 export function activate(context: vscode.ExtensionContext): void {
+  setupSidebar(context)
+
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      'VSCodeExtensionBoilerplate.helloVSCode',
-      () => helloWorld()
+    vscode.commands.registerCommand('colleq.hello', (...people: string[]) =>
+      helloWorld(people)
     )
   )
 

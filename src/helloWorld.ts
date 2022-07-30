@@ -1,5 +1,7 @@
-import vscode from 'vscode';
+import vscode from 'vscode'
 
-export default function helloWorld() {
-    vscode.window.showInformationMessage('Hello Visual Studio Code!');
+export default function helloWorld(people: string[]) {
+  vscode.window.showInformationMessage(
+    `Welcome to colleq, ${people.join(', ')}!`
+  )
 }
