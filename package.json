@@ -19,6 +19,7 @@
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.182",
     "@types/node": "^18.6.2",
     "@types/vscode": "^1.69.0",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
@@ -38,9 +39,12 @@
   },
   "dependencies": {
     "@types/jest": "^28.1.6",
-    "fastify": "^4.3.0"
+    "fastify": "^4.3.0",
+    "lodash": "^4.17.21"
   },
-  "extensionDependencies": ["vscode.git"],
+  "extensionDependencies": [
+    "vscode.git"
+  ],
   "activationEvents": [
     "*"
   ],

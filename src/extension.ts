@@ -5,7 +5,10 @@ import setupSidebar from './sidebar/index'
 
 import { output } from './log'
 import { uriToTreePath } from './git'
-import { lookupDocument, renderDecorationMarkdown } from './store'
+import { lookupDocument } from './store'
+
+import groupBy from 'lodash/groupBy'
+import { renderDecorationMarkdown } from './decoration'
 
 const decorationType = vscode.window.createTextEditorDecorationType({
   isWholeLine: true,
@@ -21,9 +24,12 @@ const decorate = async (editor: vscode.TextEditor) => {
   const sourceCode = editor.document.getText()
   const sourceCodeArr = sourceCode.split('\n')
 
-  const decorationsArray = document.annotations.map((annotation) => {
-    const hoverMessage = renderDecorationMarkdown(treePath, annotation)
-    const line = annotation.lineNumber - 1
+  const decorationsArray = Object.entries(
+    groupBy(document.annotations, (x) => x.lineNumber)
+  ).map(([strLineNumber, annotations]) => {
+    const hoverMessage = renderDecorationMarkdown(treePath, annotations)
+    const lineNumber = +strLineNumber
+    const line = lineNumber - 1
     const decoration: vscode.DecorationOptions = {
       range: new vscode.Range(
         new vscode.Position(line, sourceCodeArr[line].length),
@@ -32,7 +38,11 @@ const decorate = async (editor: vscode.TextEditor) => {
       hoverMessage,
       renderOptions: {
         after: {
-          contentText: `👥 ${annotation.username}`,
+          contentText: `👥 ${
+            annotations.length === 1
+              ? annotations[0].username
+              : annotations.length
+          }`,
           color: '#69afcf',
           margin: '2em',
         },

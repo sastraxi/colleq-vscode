@@ -21,27 +21,6 @@ export type Document = {
   annotations: Array<Annotation>
 }
 
-const showSidebarUri = (arg: ShowSidebarArgs) =>
-  vscode.Uri.parse(
-    `command:colleq.showSidebar?${encodeURIComponent(JSON.stringify([arg]))}`
-  )
-
-export const renderDecorationMarkdown = (
-  treePath: string,
-  annotation: Annotation
-) => {
-  const hoverMarkdown = `**${annotation.username}**: ${annotation.message}
----
-[View conversation in sidebar](${showSidebarUri({
-    treePath,
-    annotationId: annotation.id,
-  })})`
-
-  const markdownString = new vscode.MarkdownString(hoverMarkdown)
-  markdownString.isTrusted = true
-  return markdownString
-}
-
 export const lookupDocument = async (
   treePath: string
 ): Promise<Document | undefined> => {
@@ -62,6 +41,12 @@ export const lookupDocument = async (
         message: `There's a race condition here, I think.
           Consider the case where...`,
         externalUri: 'https://google.com',
+      },
+      {
+        id: 2,
+        lineNumber: 32,
+        username: 'sastraxi',
+        message: `Is this a bug?`,
       },
     ],
   }
