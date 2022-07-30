@@ -18,6 +18,11 @@ https://vscode.rocks/decorations/
 
 https://github.com/microsoft/vscode/blob/3b549009fe133f5b98f1fd9c8d3116dbd033dbe9/extensions/markdown-language-features/src/preview/preview.ts
 
+To make a local web server (remember to make available via port mappings)
+https://github.com/microsoft/vscode-livepreview/tree/main/src/server
+
+The page to render: https://github.com/firebase/firebaseui-web
+
 ## what we do
 
 1. Gutter icon, e.g. slack (or "there are multiple" icon), clickable?
